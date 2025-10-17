@@ -60,4 +60,21 @@ describe("Authentication Endpoints", () => {
     expect(response.status).toBe(400);
     expect(response.body).toBe("username and password required");
   });
+  test("returns error when username is taken", async () => {
+    const newUser = {
+      username: "testuser",
+      password: "testpass",
+    };
+
+    // Register user first time
+    await request(server).post("/api/auth/register").send(newUser);
+
+    // Try to register same username again
+    const response = await request(server)
+      .post("/api/auth/register")
+      .send(newUser);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toBe("username taken");
+  });
 });
