@@ -48,4 +48,16 @@ describe("Authentication Endpoints", () => {
     expect(response.status).toBe(400);
     expect(response.body).toBe("username and password required");
   });
+  test("returns error when password is missing", async () => {
+    const newUser = {
+      username: "testuser",
+    };
+
+    const response = await request(server)
+      .post("/api/auth/register")
+      .send(newUser);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toBe("username and password required");
+  });
 });
