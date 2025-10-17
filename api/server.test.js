@@ -78,3 +78,29 @@ describe("Authentication Endpoints", () => {
     expect(response.body).toBe("username taken");
   });
 });
+
+describe("[POST] /api/auth/login", () => {
+  beforeEach(async () => {
+    // Register a test user before each login test
+    await request(server).post("/api/auth/register").send({
+      username: "testuser",
+      password: "testpass",
+    });
+  });
+
+  test("logs in a user successfully", async () => {
+    const credentials = {
+      username: "testuser",
+      password: "testpass",
+    };
+
+    const response = await request(server)
+      .post("/api/auth/login")
+      .send(credentials);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe("welcome, testuser");
+    expect(response.body).toHaveProperty("token");
+    expect(typeof response.body.token).toBe("string");
+  });
+});
