@@ -103,4 +103,16 @@ describe("[POST] /api/auth/login", () => {
     expect(response.body).toHaveProperty("token");
     expect(typeof response.body.token).toBe("string");
   });
+  test("returns error when username is missing", async () => {
+    const credentials = {
+      password: "testpass",
+    };
+
+    const response = await request(server)
+      .post("/api/auth/login")
+      .send(credentials);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toBe("username and password required");
+  });
 });
