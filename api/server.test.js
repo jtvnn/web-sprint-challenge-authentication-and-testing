@@ -127,4 +127,17 @@ describe("[POST] /api/auth/login", () => {
     expect(response.status).toBe(400);
     expect(response.body).toBe("username and password required");
   });
+  test("returns error for invalid username", async () => {
+    const credentials = {
+      username: "nonexistentuser",
+      password: "testpass",
+    };
+
+    const response = await request(server)
+      .post("/api/auth/login")
+      .send(credentials);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toBe("invalid credentials");
+  });
 });
