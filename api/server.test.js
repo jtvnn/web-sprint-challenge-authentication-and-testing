@@ -115,4 +115,16 @@ describe("[POST] /api/auth/login", () => {
     expect(response.status).toBe(400);
     expect(response.body).toBe("username and password required");
   });
+  test("returns error when password is missing", async () => {
+    const credentials = {
+      username: "testuser",
+    };
+
+    const response = await request(server)
+      .post("/api/auth/login")
+      .send(credentials);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toBe("username and password required");
+  });
 });
