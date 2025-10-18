@@ -140,17 +140,72 @@ describe("[POST] /api/auth/login", () => {
     expect(response.status).toBe(401);
     expect(response.body).toBe("invalid credentials");
   });
-  test('returns error for invalid password', async () => {
-      const credentials = {
-        username: 'testuser',
-        password: 'wrongpassword'
-      };
+  test("returns error for invalid password", async () => {
+    const credentials = {
+      username: "testuser",
+      password: "wrongpassword",
+    };
 
+    const response = await request(server)
+      .post("/api/auth/login")
+      .send(credentials);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toBe("invalid credentials");
+  });
+});
+
+describe('Protected Endpoints', () => {
+  
+  let authToken;
+
+  beforeEach(async () => {
+    // Register and login to get a token
+    await request(server)
+      .post('/api/auth/register')
+      .send({
+        username: 'testuser',
+        password: 'testpass'
+      });
+
+    const loginResponse = await request(server)
+      .post('/api/auth/login')
+      .send({
+        username: 'testuser',
+        password: 'testpass'
+      });
+
+    authToken = loginResponse.body.token;
+  });
+
+  describe('[GET] /api/jokes', () => {
+    
+    test('allows access with valid token', async () => {
       const response = await request(server)
-        .post('/api/auth/login')
-        .send(credentials);
+        .get('/api/jokes')
+        .set('Authorization', authToken);
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+    });
+
+    test('denies access without token', async () => {
+      const response = await request(server)
+        .get('/api/jokes');
 
       expect(response.status).toBe(401);
-      expect(response.body).toBe("invalid credentials");
+      expect(response.body).toBe("token required");
     });
+
+    test('denies access with invalid token', async () => {
+      const response = await request(server)
+        .get('/api/jokes')
+        .set('Authorization', 'invalid-token');
+
+      expect(response.status).toBe(401);
+      expect(response.body).toBe("token invalid");
+    });
+
+  });
+
 });
